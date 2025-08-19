@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미림여자고등학교 진로진학 로드맵</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #fffbeb; /* amber-50 */
+            color: #374151; /* gray-700 */
+        }
+        .main-container {
+            background: rgba(255, 255, 255, 0.7); /* white/70 */
+            border: 1px solid rgba(253, 230, 138, 0.5); /* amber-200/50 */
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .content-card {
+            background: #ffffff;
+            border: 1px solid #fde68a; /* amber-200 */
+        }
+        .tab-inactive {
+            color: #b45309; /* amber-700 */
+            background-color: #fffbeb; /* amber-50 */
+            border-color: #fde68a; /* amber-200 */
+        }
+        .tab-active {
+            color: #78350f; /* amber-900 */
+            border-color: #fcd34d; /* amber-400 */
+            background: #fef3c7; /* amber-200 */
+        }
+        select {
+            background-color: #fffbeb; /* amber-50 */
+            border-color: #fde68a; /* amber-200 */
+            color: #92400e; /* amber-800 */
+            font-weight: 600;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2392400e' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        /* --- Club Description Panel Animation --- */
+        #club-description-panel {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        #club-description-panel.hidden {
+            opacity: 0;
+            transform: translateY(-1rem);
+            pointer-events: none;
+        }
+        
+        /* --- Collapsible Accordion Styles --- */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 1s ease-in-out, padding 1s ease-in-out;
+            padding: 0 1.5rem; /* p-6 horizontal padding */
+        }
+        .collapsible-content.expanded {
+            max-height: 1000px; /* A value larger than any possible content height */
+            padding: 1.5rem; /* p-6 */
+        }
+        .chevron {
+            transition: transform 0.5s ease;
+        }
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* --- Interactive Graphic Styles --- */
+        #interactive-graphic-container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            min-height: 600px;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+            border: 1px solid #fde68a; /* amber-200 */
+        }
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            border-radius: 1rem;
+        }
+        .node {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.4s ease-in-out;
+            font-size: 0.8rem;
+            padding: 4px;
+            box-sizing: border-box;
+            z-index: 10;
+            opacity: 0.85;
+            color: #78350f; /* amber-900 */
+        }
+        .node:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            border-color: #f59e0b; /* amber-500 */
+        }
+        .node.active {
+            opacity: 1;
+            transform: scale(1.2);
+            color: white !important;
+            border-color: #fcd34d !important; /* amber-300 */
+            background-color: #d97706 !important; /* amber-600 */
+            box-shadow: 0 0 25px rgba(217, 119, 6, 0.7);
+        }
+        .node.related {
+            opacity: 1;
+            transform: scale(1.1);
+            color: white !important;
+            border-color: #fbbf24 !important; /* amber-400 */
+            background-color: #f59e0b !important; /* amber-500 */
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+        #center-node {
+            width: 150px;
+            height: 150px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-width: 4px;
+            color: white;
+            border-color: #fcd34d; /* amber-300 */
+            background-color: #92400e; /* amber-800 */
+            opacity: 1;
+        }
+        #center-node.active {
+             background-color: #78350f !important; /* amber-900 */
+             border-color: #fde68a !important; /* amber-200 */
+        }
+        .orbit-node {
+            width: 110px;
+            height: 110px;
+        }
+        #connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .connection-line {
+            stroke: #d1d5db; /* gray-300 */
+            stroke-width: 1.5px;
+            transition: all 0.4s ease-in-out;
+            opacity: 0.6;
+        }
+        .connection-line.active {
+            stroke: #f59e0b; /* amber-500 */
+            stroke-width: 3px;
+            opacity: 1;
+        }
+        #info-panel {
+            position: absolute;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid #fef3c7; /* amber-100 */
+            color: #374151;
+        }
+        #info-panel h3 {
+            color: #b45309; /* amber-700 */
+        }
+        #info-panel p {
+            color: #1f2937; /* gray-800 */
+        }
+        .fade-in-graphic {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+    <div class="w-full max-w-7xl mx-auto">
+        <div class="main-container shadow-2xl rounded-2xl overflow-hidden">
+            <header class="bg-gradient-to-r from-amber-200 via-yellow-200 to-orange-200 p-6 text-white text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-amber-900 tracking-wider" style="text-shadow: 1px 1px 2px rgba(255,255,255,0.5);">미림여자고등학교 진로진학 로드맵</h1>
+            </header>
+            
+            <main class="p-6 md:p-10">
+                <!-- 3-Year Growth Journey Section -->
+                <section class="mb-12 text-center">
+                    <div class="flex justify-center items-center gap-x-4 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        <h2 class="text-4xl font-bold text-amber-600 tracking-wide pb-2 border-b-2 border-amber-200">3년간의 성장 여정</h2>
+                    </div>
+                    <p class="text-center text-gray-600 max-w-3xl mx-auto mt-4 mb-10">
+                        여러분의 3년은 '기초 다지기'에서 시작하여 '탐색과 심화', 그리고 '진로 맞춤 전문화' 단계로 체계적으로 이어집니다.
+                    </p>
+                    <div class="flex items-center justify-center space-x-4 mb-8">
+                        <div class="flex items-center text-amber-600 font-semibold text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m2 4l-4-4m0 0l4-4"></path></svg>
+                            <span>입학</span>
+                        </div>
+                        <div class="flex-grow border-t-2 border-dashed border-amber-300"></div>
+                        <div class="flex items-center text-amber-600 font-semibold text-lg">
+                            <span>졸업</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </div>
+                    </div>
+                    <div class="grid lg:grid-cols-3 gap-6 items-start text-left">
+                        <!-- Step 1 -->
+                        <div class="bg-yellow-50 p-6 rounded-xl shadow-lg border-t-4 border-yellow-400">
+                            <h3 class="text-5xl font-bold text-yellow-500 mb-2 text-center">1</h3>
+                            <h4 class="text-xl font-bold text-gray-800 mb-1 underline decoration-yellow-400 decoration-2 underline-offset-4">1학년: 기초 역량 다지기</h4>
+                            <p class="text-sm font-semibold text-yellow-600 mb-4">공통과목 중심</p>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start"><span class="text-yellow-500 mr-2">✔</span><span>국어, 영어, 수학, 사회, 과학 등 학문의 기초가 되는 공통과목 이수</span></li>
+                                <li class="flex items-start"><span class="text-yellow-500 mr-2">✔</span><span>학습 습관 형성과 기초학력 증진</span></li>
+                                <li class="flex items-start"><span class="text-yellow-500 mr-2">✔</span><span>동아리, 자치활동으로 학교생활 적응</span></li>
+                                <li class="flex items-start"><span class="text-yellow-500 mr-2">✔</span><span>다양한 진로탐색 및 적성검사 진행</span></li>
+                            </ul>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="bg-amber-50 p-6 rounded-xl shadow-lg border-t-4 border-amber-400">
+                            <h3 class="text-5xl font-bold text-amber-500 mb-2 text-center">2</h3>
+                            <h4 class="text-xl font-bold text-gray-800 mb-1 underline decoration-amber-400 decoration-2 underline-offset-4">2학년: 탐색과 심화</h4>
+                            <p class="text-sm font-semibold text-amber-600 mb-4">선택과목 확대</p>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start"><span class="text-amber-500 mr-2">✔</span><span>다양한 일반선택·진로선택·융합선택 과목 수강</span></li>
+                                <li class="flex items-start"><span class="text-amber-500 mr-2">✔</span><span>창체 및 교과 학술활동 심화</span></li>
+                                <li class="flex items-start"><span class="text-amber-500 mr-2">✔</span><span>진로 관련 특강 및 체험 활동 참여</span></li>
+                                <li class="flex items-start"><span class="text-amber-500 mr-2">✔</span><span>대입 정보 탐색 및 준비 시작</span></li>
+                            </ul>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="bg-orange-50 p-6 rounded-xl shadow-lg border-t-4 border-orange-400">
+                            <h3 class="text-5xl font-bold text-orange-500 mb-2 text-center">3</h3>
+                            <h4 class="text-xl font-bold text-gray-800 mb-1 underline decoration-orange-400 decoration-2 underline-offset-4">3학년: 진로 맞춤 전문화</h4>
+                            <p class="text-sm font-semibold text-orange-600 mb-4">대입 집중 준비</p>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex items-start"><span class="text-orange-500 mr-2">✔</span><span>진로와 직접적으로 연관된 심화 선택 과목 집중 이수</span></li>
+                                <li class="flex items-start"><span class="text-orange-500 mr-2">✔</span><span>학종, 논술 등 전형에 따른 준비</span></li>
+                                <li class="flex items-start"><span class="text-orange-500 mr-2">✔</span><span>대입 전형별 맞춤형 준비 및 모의면접 실시</span></li>
+                                <li class="flex items-start"><span class="text-orange-500 mr-2">✔</span><span>대학생활 및 진로 설계를 위한 최종 준비</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-t-2 border-amber-200 my-12">
+
+                <!-- Student Growth Roadmap Graphic -->
+                <section class="mb-12 text-center">
+                    <div class="flex justify-center items-center gap-x-4 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                        <h2 class="text-4xl font-bold text-amber-600 tracking-wide pb-2 border-b-2 border-amber-200">학생 중심의 상호작용형 교육 프로그램</h2>
+                    </div>
+                    <p class="text-center text-gray-600 max-w-3xl mx-auto mt-4 mb-10">
+                        '이수 교과'를 중심으로 모든 교육 활동이 유기적으로 연결됩니다. '자기주도성'과 '도전정신'을 바탕으로 자신만의 성장 스토리를 만들어가세요. (각 활동을 클릭하여 관계도를 확인해보세요.)
+                    </p>
+                    <div id="interactive-graphic-container">
+                        <canvas id="particle-canvas"></canvas>
+                        <svg id="connections"></svg>
+                        <div id="center-node" class="node">이수 교과<br>(학업 역량)</div>
+                        <!-- Orbiting Nodes will be generated by JS -->
+                        <div id="info-panel" class="p-5 rounded-lg shadow-2xl opacity-0 transform -translate-y-10">
+                            <h3 id="info-title" class="text-xl font-bold mb-2">정보</h3>
+                            <p id="info-description" class="text-sm">각 활동을 클릭하여 관계도를 확인하세요.</p>
+                        </div>
+                    </div>
+                     <div id="outcome" class="w-full max-w-4xl mt-8 mx-auto p-6 bg-white rounded-xl shadow-lg border border-amber-200 text-center">
+                        <h2 class="text-2xl font-bold text-amber-700 mb-3">궁극적 성장 목표</h2>
+                        <p class="text-gray-700">
+                            <strong class="text-yellow-500">자기주도성</strong>과 <strong class="text-red-500">도전정신</strong>을 바탕으로 다양한 교육 활동을 유기적으로 연계하여 자신의 특성을 파악하고 진로를 탐색하며, 
+                            선택한 분야에 대한 <strong class="text-amber-600">심화된 지식과 경험</strong>을 쌓아 
+                            <strong class="text-green-600 font-semibold">성공적인 대학 입시</strong>와 
+                            <strong class="text-green-600 font-semibold">미래 인재로의 성장</strong>을 이룹니다.
+                        </p>
+                    </div>
+                </section>
+
+                <div class="border-t-2 border-amber-200 pt-12 text-center">
+                    <div class="flex justify-center items-center gap-x-4 mb-8">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                         </svg>
+                        <h2 class="text-4xl font-bold text-amber-600 tracking-wide pb-2 border-b-2 border-amber-200">상세 교육과정 살펴보기</h2>
+                    </div>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="mb-8">
+                    <nav class="flex">
+                        <button id="tab-curriculum" class="w-1/2 py-4 px-6 font-medium text-lg text-center transition-colors duration-300 border-b-4 rounded-tl-lg">교육과정과 프로그램 리스트</button>
+                        <button id="tab-roadmap" class="w-1/2 py-4 px-6 font-medium text-lg text-center transition-colors duration-300 border-b-4 rounded-tr-lg">계열별 로드맵</button>
+                    </nav>
+                </div>
+
+                <!-- Section 1: Curriculum and Program List -->
+                <div id="section-curriculum" class="hidden">
+                     <!-- 1. 이수교과 -->
+                     <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                         <div class="p-4 bg-sky-100">
+                             <h3 class="font-bold text-lg text-sky-800">1. 이수교과</h3>
+                         </div>
+                         <div class="p-6">
+                             <div class="mb-6 flex justify-center">
+                                 <div class="w-full max-w-xs">
+                                     <label for="grade-selector" class="block text-md font-semibold text-gray-600 mb-2 text-center">학년 선택</label>
+                                     <select id="grade-selector" class="w-full p-2 border rounded-full shadow-sm focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition duration-150 ease-in-out text-center appearance-none">
+                                         <option value="1">1학년</option>
+                                         <option value="2">2학년</option>
+                                         <option value="3">3학년</option>
+                                     </select>
+                                 </div>
+                             </div>
+                             <div id="subject-display" class="p-4 bg-gray-50 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <!-- Subjects populated by JS -->
+                             </div>
+                         </div>
+                     </div>
+                     <!-- Other program cards... styled similarly -->
+                     <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                         <div class="p-4 bg-amber-100 flex justify-between items-center">
+                            <h3 class="font-bold text-lg text-amber-800">2. 정규 동아리</h3>
+                         </div>
+                         <div class="p-6">
+                            <div id="club-description-panel" class="hidden p-4 mb-4 bg-amber-50/80 backdrop-blur-sm rounded-lg border border-amber-200"></div>
+                            <div id="club-display" class="p-4 bg-gray-50 rounded-lg flex flex-wrap gap-3 justify-start"></div>
+                         </div>
+                     </div>
+                     <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                         <div class="p-4 bg-fuchsia-100"><h3 class="font-bold text-lg text-fuchsia-800">3. 미래인재 프로그램</h3></div>
+                         <div class="p-6"><div id="future-talent-display"></div></div>
+                     </div>
+                     <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                         <div class="p-4 bg-pink-100"><h3 class="font-bold text-lg text-pink-800">4. 유네스코학교 탐구 주제</h3></div>
+                         <div class="p-6"><div id="unesco-topics-display"></div></div>
+                     </div>
+                     <div class="grid md:grid-cols-2 gap-6">
+                        <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="p-4 bg-orange-100"><h3 class="font-bold text-lg text-orange-800">5. 지역 연계 창의 융합 교육</h3></div>
+                            <div class="p-6"><div id="regional-programs-display" class="p-4 bg-gray-50 rounded-lg flex flex-wrap gap-3 justify-start"></div></div>
+                        </div>
+                        <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="p-4 bg-yellow-100"><h3 class="font-bold text-lg text-yellow-800">6. 과학 특색 프로그램</h3></div>
+                            <div class="p-6"><div id="science-programs-display" class="p-4 bg-gray-50 rounded-lg flex flex-wrap gap-3 justify-start"></div></div>
+                        </div>
+                     </div>
+                     <div class="grid md:grid-cols-2 gap-6">
+                        <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="p-4 bg-blue-100"><h3 class="font-bold text-lg text-blue-800">7. 학생회</h3></div>
+                            <div class="p-6"><div id="student-council-display" class="p-4 bg-gray-50 rounded-lg flex flex-col space-y-2 items-start"></div></div>
+                        </div>
+                        <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="p-4 bg-rose-100"><h3 class="font-bold text-lg text-rose-800">8. 안전교육</h3></div>
+                            <div class="p-6"><div id="safety-education-display" class="p-4 bg-gray-50 rounded-lg flex flex-wrap gap-3 justify-start"></div></div>
+                        </div>
+                     </div>
+                     <div class="grid md:grid-cols-2 gap-6">
+                        <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="p-4 bg-cyan-100"><h3 class="font-bold text-lg text-cyan-800">9. 인성 예술 교육</h3></div>
+                            <div class="p-6"><div id="character-arts-display" class="p-4 bg-gray-50 rounded-lg flex flex-col space-y-2 items-start"></div></div>
+                        </div>
+                        <div class="content-card rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="p-4 bg-gray-200"><h3 class="font-bold text-lg text-gray-800">10. 기타 프로그램</h3></div>
+                            <div class="p-6"><div id="other-programs-display" class="p-4 bg-gray-50 rounded-lg flex flex-wrap gap-3 justify-start"></div></div>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Section 2: Roadmap by Track -->
+                <div id="section-roadmap" class="hidden">
+                    <div class="mb-12 flex justify-center">
+                        <div class="w-full max-w-sm">
+                            <select id="track-selector" class="w-full p-3 border rounded-full shadow-sm focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition duration-150 ease-in-out text-center appearance-none">
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+                    <div id="content-display" class="mt-6 space-y-8">
+                        <!-- Content populated by JS -->
+                    </div>
+                </div>
+            </main>
+        </div>
+        <footer class="text-center text-gray-500 mt-8 text-sm">
+            <p>&copy; 2025 Mirim Girls' High School. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const roadmapData = [
+            { "계열": "언어 문화", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---현대사회와 윤리\n세계시민과 지리\n한국지리 탐구\n프랑스어\n일본어///독서 토론과 글쓰기\n세계 문화와 영어\n정치\n여행지리\n프랑스어 회화\n일본어 회화", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n심화 영어\n영어 발표와 토론\n사회와 문화\n세계사\n동아시아 역사 기행\n심화 프랑스어\n심화 일본어\n논술///언어생활 탐구\n수학과 문화\n미디어 영어\n윤리문제 탐구\n역사로 탐구하는 현대 세계\n인문학과 윤리\n프랑스어권 문화\n일본 문화\n음악·미술 감상과 비평\n논리와 사고\n인간과 심리", "미래인재 프로그램": "융복합 프로젝트 탐구\n경계를 넘어 공존을 향하여\n프랑스의 박물관-문화의 신화가 되다\n관광과 여가의 이해\n상담심리학에 대한 이론과 실제\n생성형 AI 시대와 AI 리터러시\nAI 시대 그리고 직업으로의 예술가\n나의 이야기와 일상이 웹툰이 됩니다", "정규 동아리": "교육연구반\n교지편집반\n국제기구반\n독서토론반\n영자신문반\n토론논술반\n진로탐구독서반\n사진반\n심리학반", "유네스코학교 탐구 주제": "세계 시민의 자질\n인권 및 권리 감수성\n평화의 문화\n비폭력\n다문화 사회\n문화 다양성\n문화유산 존중\n문화 간 학습\n불평등 감소\n성평등\n평생 교육 기회 확보", "과학 특색 프로그램": "학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "상경", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---현대사회와 윤리\n세계시민과 지리\n법과 사회\n프랑스어\n일본어\n정보///독서 토론과 글쓰기\n경제 수학\n세계 문화와 영어\n정치\n사회문제 탐구\n프랑스어 회화\n일본어 회화\n데이터 과학", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n미적분Ⅱ\n수학과제 탐구\n심화 영어\n영어 발표와 토론\n사회와 문화\n세계사\n동아시아 역사 기행\n심화 프랑스어\n심화 일본어\n논술///언어생활 탐구\n수학과 문화\n미디어 영어\n윤리문제 탐구\n역사로 탐구하는 현대 세계\n인문학과 윤리\n문학·영화 감상과 비평\n프랑스어권 문화\n일본 문화\n논리와 사고\n인간과 심리", "미래인재 프로그램": "경제학으로 바라본 세상\n쉽고 재미있게 배우는 실전 마케팅\n공익광고 제작 실습\n사회적 기업 이해 및 디자인씽킹 활용", "정규 동아리": "경영경제연구반\n교지편집반\n국제기구반\n독서토론반\n방송반\n사회문제연구반\n세계시민교육반\n학술시사연구반", "유네스코학교 탐구 주제": "양질의 일자리와 경제 성장\nESG경영\n기업윤리\n공정 무역\n기업가 정신\n책임있는 생산과 소비\n세계 무역 시스템\n다국적 기업\n무역 갈등\n노동 불평등 문제\n글로벌 체인망", "과학 특색 프로그램": "학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "사회과학", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---현대사회와 윤리\n세계시민과 지리\n법과 사회\n프랑스어\n일본어\n정보///독서 토론과 글쓰기\n경제 수학\n세계 문화와 영어\n정치\n사회문제 탐구\n프랑스어 회화\n일본어 회화\n데이터 과학", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n수학과제 탐구\n심화 영어\n영어 발표와 토론\n사회와 문화\n세계사\n동아시아 역사 기행\n심화 프랑스어\n심화 일본어\n논술///언어생활 탐구\n수학과 문화\n미디어 영어\n윤리문제 탐구\n역사로 탐구하는 현대 세계\n인문학과 윤리\n문학·영화 감상과 비평\n프랑스어권 문화\n일본 문화\n논리와 사고\n인간과 심리", "미래인재 프로그램": "소수자 인권과 법\n형법의 이해와 현실 적용\n관계향상을 위한 집단상담 이론과 실제\n상담심리학에 대한 이론과 실제", "정규 동아리": "경영경제연구반\n교육연구반\n방송반\n사회문제연구반\n심리학반\n독서토론반", "유네스코학교 탐구 주제": "빈곤 퇴치 및 기아 종식\n지속가능한 도시와 지역 사회\n사회 양극화 문제\n사회 복지 제도\n지역 사회 문제 해결\n핵 개발 문제", "과학 특색 프로그램": "학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "자연과학", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---물리학\n화학\n생명과학\n지구과학\n공학커뮤니케이션\n정보\n프랑스어\n일본어///독서 토론과 글쓰기\n기하\n세계 문화와 영어\n역학과 에너지\n물질과 에너지\n세포와 물질대사\n지구시스템과학\n데이터과학", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n미적분Ⅱ\n수학과제 탐구\n심화 영어\n영어 발표와 토론\n전자기와 양자\n화학 반응의 세계\n화학 반응의 세계\n행성우주과학\n논술///언어생활 탐구\n전문 수학\n미디어 영어\n과학의 역사와 문화\n기후 변화와 환경 생태\n융합과학 탐구\n음악·영화 감상과 비평\n논리와 사고", "미래인재 프로그램": "변수의 연결고리: 카이제곱 검정과 상관 분석\n양자 화학의 소개\n실험으로 이해하는 물리학 교실\n생명과 세포 및 유전자의 이해\n천문학으로 이해하는 우주의 진화와 생명의 기원\n확률과 통계로 알아보는 추정과 검정\n열의 본질은 무엇인가?\n실험으로 이해하는 화학교실", "정규 동아리": "공학리더반\n교육연구반\n메이커반\n생명과학반\n수학융합탐구반\n화학탐구실험반", "유네스코학교 탐구 주제": "환경 보전\n깨끗한 물과 위생\n물부족 문제\n육상 생태계\n해양 생태계 보전\n기후 위기와 대응 방안\n자연재해 예방\n생물다양성 보호\n에너지 절약\n미래 먹거리\n스마트팜\n유전자 변형 식품\n과학 기술과 윤리", "과학 특색 프로그램": "과학 Open Labs\n(특강) 과학기술 석학과의 만남\n교내 메이커 체험축제\n융합과학 메이커 축제\n지역사회 공학나눔 캠프\n천문교실 (천체망원경 실습 / 천체관측 / 천문소프트웨어)\n(실험 및 체험) 학교 밖 교실 탐구활동\n학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "공학", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---물리학\n화학\n생명과학\n지구과학\n공학커뮤니케이션\n정보\n프랑스어\n일본어///독서 토론과 글쓰기\n기하\n세계 문화와 영어\n역학과 에너지\n물질과 에너지\n세포와 물질대사\n지구시스템과학\n데이터과학", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n미적분Ⅱ\n수학과제 탐구\n심화 영어\n영어 발표와 토론\n전자기와 양자\n화학 반응의 세계\n화학 반응의 세계\n행성우주과학\n논술///언어생활 탐구\n전문 수학\n미디어 영어\n과학의 역사와 문화\n기후 변화와 환경 생태\n융합과학 탐구\n음악·영화 감상과 비평\n논리와 사고", "미래인재 프로그램": "[입문] 실험으로 이해하는 생명공학 교실\n인공지능 자율주행 자동차 탐구\n아두이노를 활용한 소프트웨어 프로그램 실습", "정규 동아리": "공학리더반\n메이커반\n융합과학탐구반", "유네스코학교 탐구 주제": "친환경적 에너지의 생산과 소비\n미래 신소재\n정보통신기술\n4차 산업혁명 기술(인공지능, 로봇, 챗봇, 사물 인터넷, AR, VR, 빅데이터 등)\n탄소 제로 기술\n재활용 기술\n항공우주 산업\n전기 및 수소 자동차\n자율주행차\n블록체인\nNFT\n코딩\n메타버스", "과학 특색 프로그램": "과학 Open Labs\n(특강) 과학기술 석학과의 만남\n교내 메이커 체험축제\n융합과학 메이커 축제\n지역사회 공학나눔 캠프\n천문교실 (천체망원경 실습 / 천체관측 / 천문소프트웨어)\n(실험 및 체험) 학교 밖 교실 탐구활동\n학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "소프트웨어", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---물리학\n화학\n생명과학\n지구과학\n공학커뮤니케이션\n정보\n프랑스어\n일본어///독서 토론과 글쓰기\n기하\n세계 문화와 영어\n역학과 에너지\n물질과 에너지\n세포와 물질대사\n지구시스템과학\n데이터과학", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n미적분Ⅱ\n수학과제 탐구\n심화 영어\n영어 발표와 토론\n전자기와 양자\n화학 반응의 세계\n화학 반응의 세계\n행성우주과학\n논술///언어생활 탐구\n전문 수학\n미디어 영어\n과학의 역사와 문화\n기후 변화와 환경 생태\n융합과학 탐구\n음악·영화 감상과 비평\n논리와 사고", "미래인재 프로그램": "인공지능 자율주행 자동차 탐구\n아두이노를 활용한 소프트웨어 프로그램 실습\n생성형 AI 시대와 AI 리터러시", "정규 동아리": "공학리더반\n융합과학탐구반\n인공지능융합연구반", "유네스코학교 탐구 주제": "환경 보전\n깨끗한 물과 위생\n물부족 문제\n육상 생태계\n해양 생태계 보전\n기후 위기와 대응 방안\n자연재해 예방\n생물다양성 보호\n에너지 절약\n미래 먹거리\n스마트팜\n유전자 변형 식품\n과학 기술과 윤리", "과학 특색 프로그램": "과학 Open Labs\n(특강) 과학기술 석학과의 만남\n교내 메이커 체험축제\n융합과학 메이커 축제\n지역사회 공학나눔 캠프\n(실험 및 체험) 학교 밖 교실 탐구활동\n학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "보건의료", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---현대사회와 윤리\n화학\n생명과학\n프랑스어\n일본어///독서 토론과 글쓰기\n세계 문화와 영어\n경제\n사회문제 탐구\n물질과 에너지\n세포와 물질대사\n데이터과학\n보건", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n미적분Ⅱ\n수학과제 탐구\n심화 영어\n영어 발표와 토론\n전자기와 양자\n화학 반응의 세계\n화학 반응의 세계\n행성우주과학\n논술\n인간발달///언어생활 탐구\n전문 수학\n미디어 영어\n과학의 역사와 문화\n기후 변화와 환경 생태\n융합과학 탐구\n음악·영화 감상과 비평\n논리와 사고\n생태와 환경", "미래인재 프로그램": "의약학 기반 글로벌 미래인재 성장하기\n약리학의 기초원리\n간호학과 건강사정 방법\n동물의 세계 바로 알기", "정규 동아리": "의료보건반\n의약연구반\n적십자반", "유네스코학교 탐구 주제": "건강과 웰빙\n예방 의학\n의약품 개발\n질병과 감염병 극복\n세균과 바이러스\n동물 의학\n동물보호\n생명 윤리 문제", "과학 특색 프로그램": "과학 Open Labs\n(특강) 과학기술 석학과의 만남\n교내 메이커 체험축제\n융합과학 메이커 축제\n지역사회 공학나눔 캠프\n(실험 및 체험) 학교 밖 교실 탐구활동\n학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" },
+            { "계열": "예체능", "이수 교과 (1학년)": "공통국어1\n공통수학1\n공통영어1\n한국사1\n통합사회1\n통합과학1\n과학탐구실험1\n체육1\n음악\n미술///공통국어2\n공통수학2\n공통영어2\n한국사2\n통합사회2\n통합과학2\n과학탐구실험2\n체육2\n미술\n음악", "이수 교과 (2학년)": "---현대사회와 윤리\n세계시민과 지리\n생명과학\n음악 연주와 창작\n미술 창작\n프랑스어\n일본어///독서 토론과 글쓰기\n세계 문화와 영어\n정치\n여행지리\n세포와 물질대사\n프랑스어 회화\n일본어 회화", "이수 교과 (3학년)": "---문학\n주제 탐구 독서\n확률과 통계\n심화 영어\n영어 발표와 토론\n사회와 문화\n세계사\n동아시아 역사 기행\n심화 프랑스어\n심화 일본어\n논술\n인간발달///언어생활 탐구\n수학과 문화\n미디어 영어\n윤리문제 탐구\n역사로 탐구하는 현대 세계\n인문학과 윤리\n음악·미술 감상과 비평\n프랑스어권 문화\n일본 문화\n논리와 사고\n인간과 심리", "미래인재 프로그램": "AI 시대 그리고 직업으로의 예술가\n나의 이야기와 일상이 웹툰이 됩니다", "정규 동아리": "미술반\n음악연주반", "유네스코학교 탐구 주제": "세계 시민의 자질\n인권 및 권리 감수성\n평화의 문화\n비폭력\n생명 윤리 문제\n육상 생태계\n해양 생태계 보전\n사회 양극화 문제\n사회 복지 제도", "과학 특색 프로그램": "학급별 텃밭 가꾸기", "지역 연계 창의 융합교육": "창업캠프\nAI융합캠프\n지속가능한 장터\n지역사회 플로깅", "학생회": "굿네이버스 봉사활동\n기억의 날\n대의원회의 및 학교장 간담회\n리더십 캠프\n수능 출정식\n학생 논단\n학생 자치 법정", "안전 교육": "소방 대피 훈련\n화재 예방 교육\n미세먼지 계기 교육", "인성·예술 교육": "1인 1악기\n감염병 예방 교육\n교권 존중 교육\n다문화 이해 교육\n미술 작품 전시회\n생명 존중 교육\n성매매·성폭력 예방 교육\n약물 오남용 및 마약예방 교육\n장애 이해 교육\n학교폭력 예방 캠페인 활동\n학생 인권 교육\n흡연 예방 교육", "기타 학교 행사": "고전-인문 아카데미\n기후 위기포럼\n기후행동 캠페인\n동아리 활동 발표회\n일본 치벤학원 국제교류\nUN(EU) goes to School 특강" }
+        ];
+
+        const gradeSubjects = {
+            "1": {
+                "국어": ["공통국어1", "공통국어2"],
+                "수학": ["공통수학1", "공통수학2"],
+                "영어": ["공통영어1", "공통영어2"],
+                "사회": ["한국사1", "한국사2", "통합사회1", "통합사회2"],
+                "과학": ["통합과학1", "통합과학2", "과학탐구실험1", "과학탐구실험2"],
+                "예체능": ["체육1", "체육2", "음악", "미술"]
+            },
+            "2": {
+                "국어": ["독서와 작문", "화법과 언어", "독서 토론과 글쓰기"],
+                "수학": ["대수", "미적분Ⅰ", "기하", "경제 수학"],
+                "영어": ["영어Ⅰ", "영어Ⅱ", "세계 문화와 영어"],
+                "사회": ["현대사회와 윤리", "세계시민과 지리", "법과 사회", "한국지리 탐구", "정치", "경제", "여행지리", "사회문제 탐구"],
+                "과학": [
+                    ["물리학", "역학과 에너지"],
+                    ["화학", "물질과 에너지"],
+                    ["생명과학", "세포와 물질대사"],
+                    ["지구과학", "지구시스템과학"]
+                ],
+                "예체능": ["스포츠 생활2", "운동과 건강", "음악 연주와 창작", "미술 창작"],
+                "교양/기타": ["공학 커뮤니케이션", "정보", "프랑스어", "일본어", "프랑스어 회화", "일본어 회화", "보건", "데이터과학"]
+            },
+            "3": {
+                "국어": ["문학", "주제 탐구 독서", "언어생활 탐구", "논술", "문학 감상과 비평"],
+                "수학": ["확률과 통계", "미적분Ⅱ", "수학과제 탐구", "수학과 문화", "전문 수학"],
+                "영어": ["심화 영어", "영어 발표와 토론", "미디어 영어"],
+                "사회": ["사회와 문화", "세계사", "동아시아 역사 기행", "윤리문제 탐구", "역사로 탐구하는 현대 세계", "인문학과 윤리", "논리와 사고", "인간과 심리"],
+                "과학": ["전자기와 양자", "화학 반응의 세계", "생물의 유전", "행성우주과학", "과학의 역사와 문화", "기후 변화와 환경생태", "융합과학 탐구", "생태와 환경"],
+                "예체능": ["스포츠 과학", "스포츠 문화", "음악 감상과 비평", "미술 감상과 비평", "영화 감상과 비평"],
+                "교양/기타": ["심화 프랑스어", "심화 일본어", "인간 발달", "프랑스어권 문화", "일본 문화"]
+            }
+        };
+        
+        const clubDescriptions = [
+            { name: "경영경제연구반", description: "예비경영인 준비, 마케팅 탐구 활동, 창업가 정신 함양" },
+            { name: "공학리더반", description: "자율주행 자동차 연구 및 코딩 활동" },
+            { name: "교육연구반", description: "예비교사 준비, 교육 연구 및 수업 시연, 교육봉사" },
+            { name: "교지편집반", description: "미림여고 교지 발간" },
+            { name: "국제기구반", description: "모의 UN 대회 개최 및 국제 토론 활동" },
+            { name: "독서토론반", description: "인문, 사회, 진로 등 주제별 독서 활동 및 서평작성" },
+            { name: "메이커반", description: "3D프린터, 레이저커팅기를 이용한 창작물 제작 활동" },
+            { name: "미술반", description: "갤러리 정기 전시회 및 회화전" },
+            { name: "방송반", description: "교내 방송 담당, 방송제" },
+            { name: "사진반", description: "사진 촬영 및 전시" },
+            { name: "사회문제연구반", description: "사회적 이슈 탐구 및 해결책 모색 활동" },
+            { name: "생명과학반", description: "다양한 분야의 과학 실험과 토론 및 탐구활동" },
+            { name: "세계시민교육반", description: "세계시민교육, 지속가능발전, 문화 교류 등 유네스코 정신 탐구" },
+            { name: "수학융합탐구반", description: "수학에 기반을 둔 융합 탐구 활동" },
+            { name: "심리학반", description: "심리학 관련 주제 탐구 활동" },
+            { name: "영자신문반", description: "미림여고 영자 신문 발간" },
+            { name: "융합과학탐구반", description: "과학 실험 및 탐구 활동" },
+            { name: "음악연주반", description: "음악 감상 및 실기 연습, 무대 발표 및 음악 관련 코티칭 활동" },
+            { name: "의료보건반", description: "예비 의료, 보건인 준비 및 의학 분야 탐구 활동" },
+            { name: "의약연구반", description: "예비 의약인으로서 진로 탐색 및 탐구 활동" },
+            { name: "적십자반", description: "교내 캠페인 및 봉사, 청소년 단체 활동" },
+            { name: "토론논술반", description: "인문, 사회, 과학, 융합적 주제 발표 및 토론" },
+            { name: "학술시사연구반", description: "시사 관련 다양한 주제 탐구 및 발표 활동" },
+            { name: "화학탐구 실험반", description: "화학 실험 탐구 및 활동" },
+            { name: "진로탐구독서반", description: "진로 관련 탐구 독서 (3학년 직업위탁교육생)" },
+            { name: "(자율) 라파엘 프리메드 아카데미", description: "의학 계열 진로를 희망하는 학생들이 모여 심화 탐구 및 토론 활동을 진행합니다." },
+            { name: "(자율) 밴드반", description: "다양한 장르의 음악을 연주하고 공연하며 음악적 재능을 발휘합니다." },
+            { name: "(자율) 댄스반", description: "최신 댄스 트렌드를 익히고, 창작 안무를 통해 무대 공연을 준비합니다." },
+            { name: "(자율) 기후행동365단", description: "기후 위기의 심각성을 알리고, 환경 보호를 위한 교내외 캠페인 및 실천 활동을 전개합니다." },
+            { name: "(자율) 또래상담반", description: "상담 교육을 이수하여, 친구들의 학교생활 고민을 들어주고 지지하는 역할을 수행합니다." }
+        ];
+
+        const categorizedFutureTalentPrograms = {
+            "인문·사회": [
+                { name: "소수자 인권과 법", description: "사회적 소수자의 인권 문제를 법적, 사회적 관점에서 심층적으로 탐구하고 인권 감수성을 함양합니다." },
+                { name: "경제학으로 바라본 세상", description: "경제학의 기본 원리를 통해 일상과 사회 현상을 분석하고 합리적인 의사결정 능력을 배양합니다." },
+                { name: "관계향상을 위한 집단상담 이론과 실제", description: "집단상담의 이론을 배우고 실제 체험을 통해 대인관계 기술과 공감 능력을 향상시킵니다." },
+                { name: "형법의 이해와 현실 적용", description: "형법의 주요 원칙과 실제 판례를 분석하며 법적 사고력과 정의관을 확립합니다." },
+                { name: "상담심리학에 대한 이론과 실제", description: "상담심리학의 다양한 이론을 배우고, 역할극 등을 통해 기본적인 상담 기법을 실습합니다." },
+                { name: "쉽고 재미있게 배우는 실전 마케팅", description: "최신 마케팅 이론과 성공 사례 분석을 통해 실전적인 마케팅 기획 능력을 배양합니다." },
+                { name: "경계를 넘어 공존을 향하여", description: "다문화, 인권, 환경 등 글로벌 이슈에 대해 토론하며 세계 시민으로서의 공존의 가치를 모색합니다." },
+                { name: "프랑스의 박물관, 문화의 신화가 되다", description: "루브르, 오르세 등 프랑스의 대표적인 박물관을 통해 프랑스 문화와 예술의 역사를 탐방합니다." },
+                { name: "관광과 여가의 이해", description: "현대 사회의 관광과 여가 문화의 트렌드를 분석하고, 지속가능한 관광에 대해 탐구합니다." },
+                { name: "공익광고 제작 실습", description: "사회적 메시지를 효과적으로 전달하는 공익광고를 직접 기획하고 제작하는 실습을 진행합니다." },
+                { name: "사회적 기업 이해 및 디자인씽킹 활용", description: "사회 문제 해결을 목표로 하는 사회적 기업의 사례를 배우고, 디자인씽킹 방법론을 활용해 새로운 모델을 구상합니다." }
+            ],
+            "자연·공학": [
+                { name: "변수의 연결고리: 카이제곱 검정과 상관 분석", description: "통계의 핵심 개념인 카이제곱 검정과 상관 분석을 배우고 데이터를 분석하는 능력을 기릅니다." },
+                { name: "양자 화학의 소개", description: "미시 세계를 지배하는 양자역학의 원리를 화학에 적용하여 분자의 구조와 반응을 이해합니다." },
+                { name: "의약학 기반 글로벌 미래인재 성장하기", description: "의약학 분야의 최신 동향을 학습하고, 글로벌 리더로서 필요한 연구 및 소통 역량을 키웁니다." },
+                { name: "약리학의 기초원리", description: "약물이 인체에 작용하는 원리를 배우고, 의약품의 개발과 안전한 사용에 대해 탐구합니다." },
+                { name: "인공지능 자율주행 자동차 탐구", description: "자율주행 자동차의 핵심 기술인 센서, 인공지능, 제어 시스템에 대해 학습하고 직접 구현해 봅니다." },
+                { name: "실험으로 이해하는 물리학 교실", description: "주요 물리 법칙을 직접 실험으로 증명하며, 현상에 대한 과학적 탐구 능력을 기릅니다." },
+                { name: "생명과 세포 및 유전자의 이해", description: "생명 현상의 기본 단위인 세포와 유전자의 구조와 기능에 대해 심도 있게 학습합니다." },
+                { name: "천문학으로 이해하는 우주의 진화와 생명의 기원", description: "천체 관측과 최신 이론을 통해 우주의 탄생부터 생명의 기원까지 거대한 서사를 탐험합니다." },
+                { name: "간호학과 건강사정 방법", description: "간호학의 기초 지식과 대상자의 건강 상태를 체계적으로 파악하는 건강사정 방법을 배웁니다." },
+                { name: "동물의 세계 바로 알기", description: "다양한 동물의 행동과 생태를 관찰하고 연구하며, 생명 존중의 태도를 기릅니다." },
+                { name: "아두이노를 활용한 소프트웨어 프로그램 실습", description: "오픈소스 하드웨어인 아두이노를 제어하는 프로그래밍을 통해 피지컬 컴퓨팅의 원리를 익힙니다." },
+                { name: "확률과 통계로 알아보는 추정과 검정", description: "데이터를 바탕으로 미래를 예측하는 통계적 추정과 가설을 검증하는 방법을 학습합니다." },
+                { name: "열의 본질은 무엇인가?", description: "열역학 법칙을 통해 에너지와 엔트로피의 개념을 이해하고, 열 현상의 본질을 탐구합니다." },
+                { name: "[입문] 실험으로 이해하는 생명공학 교실", description: "DNA 추출, 유전자 재조합 등 생명공학의 핵심 기술을 실험을 통해 직접 체험합니다." },
+                { name: "실험으로 이해하는 화학교실", description: "다양한 화학 반응을 직접 실험하며 이론을 검증하고, 화학 분야에 대한 흥미와 탐구 능력을 증진시킵니다." },
+                { name: "생성형 AI 시대와 AI 리터러시", description: "챗GPT 등 생성형 AI의 원리를 이해하고, 비판적으로 활용하며 윤리적 문제에 대해 토론합니다." }
+            ],
+            "예체능 및 기타": [
+                { name: "융복합 프로젝트 탐구", description: "다양한 학문 분야를 융합하여 창의적인 프로젝트를 기획하고 수행하며 문제 해결 능력을 기릅니다." },
+                { name: "AI 시대 그리고 직업으로의 예술가", description: "인공지능이 예술 창작에 미치는 영향을 탐구하고, 미래 예술가로서의 생존 전략을 고민합니다." },
+                { name: "나의 이야기와 일상이 웹툰이 됩니다.", description: "스토리텔링과 드로잉 기법을 배워 자신의 경험을 바탕으로 한 웹툰을 창작합니다." }
+            ]
+        };
+        
+        const categorizedUnescoTopics = {
+            "세계 시민": [
+                { name: "세계 시민의 자질", description: "글로벌 공동체의 일원으로서 갖추어야 할 소양과 책임감에 대해 탐구합니다." },
+                { name: "인권 및 권리 감수성", description: "모든 인간의 존엄성과 권리를 이해하고, 일상 속 인권 침해 사례에 대한 감수성을 기릅니다." },
+                { name: "평화의 문화와 비폭력", description: "갈등 해결의 평화적 방법을 모색하고, 비폭력 대화와 실천을 통해 평화의 문화를 확산합니다." },
+                { name: "불평등 감소, 성평등, 평생 교육 기회 확보", description: "사회적, 경제적 불평등과 성차별 문제를 인식하고, 모두를 위한 평생 교육의 중요성을 탐구합니다." },
+                { name: "사회 양극화 문제, 사회 복지 제도", description: "심화되는 사회 양극화 현상을 분석하고, 이를 완화하기 위한 사회 복지 제도의 역할을 연구합니다." },
+                { name: "지역 사회 문제 해결", description: "우리 주변의 지역 사회 문제를 직접 발견하고, 창의적인 방법으로 해결하는 프로젝트를 수행합니다." },
+                { name: "핵 개발 문제", description: "핵무기 개발이 인류와 지구에 미치는 위협을 이해하고, 평화적 해결과 비핵화를 위한 노력을 탐구합니다." },
+                { name: "노동 불평등 문제", description: "전 세계적으로 발생하는 다양한 형태의 노동 불평등 문제의 원인을 분석하고 해결책을 모색합니다." },
+                { name: "빈곤 퇴치 및 기아 종식", description: "전 지구적 빈곤과 기아 문제의 심각성을 인식하고, 지속가능한 해결 방안을 모색합니다." },
+                { name: "세계 무역 시스템, 다국적 기업, 무역 갈등, 공정무역", description: "복잡한 세계 무역 시스템을 이해하고, 공정하고 윤리적인 무역의 필요성에 대해 탐구합니다." },
+                { name: "글로벌 체인망", description: "제품 하나가 우리 손에 오기까지의 복잡한 글로벌 공급망을 이해하고, 그 속의 문제점을 탐구합니다." }
+            ],
+            "지속가능발전": [
+                { name: "ESG경영, 기업윤리, 공정 무역, 기업가 정신", description: "환경, 사회, 지배구조를 고려하는 ESG 경영과 윤리적 기업 활동, 공정 무역의 가치를 학습합니다." },
+                { name: "책임있는 생산과 소비", description: "지구의 자원을 보존하기 위해 지속가능한 생산 및 소비 패턴의 중요성을 이해하고 실천합니다." },
+                { name: "지속가능한 도시와 지역 사회", description: "모두가 안전하고 포용적이며 회복력 있는 도시와 거주지를 만들기 위한 아이디어를 탐구합니다." },
+                { name: "환경 보전, 깨끗한 물과 위생, 물부족 문제", description: "깨끗한 환경과 물의 중요성을 인식하고, 전 지구적 물 부족 문제 해결을 위한 기술과 정책을 탐구합니다." },
+                { name: "육상 생태계, 해양 생태계 보전", description: "파괴되어 가는 육상 및 해양 생태계의 현황을 배우고, 생물다양성 보전을 위한 방안을 연구합니다." },
+                { name: "기후 위기와 대응 방안, 자연재해 예방", description: "기후 변화의 과학적 원인을 이해하고, 탄소 중립 실현과 자연재해 예방을 위한 방안을 모색합니다." },
+                { name: "생물다양성 보호, 에너지 절약", description: "사라져가는 생물종을 보호하고, 일상생활 속에서 에너지를 절약하는 구체적인 방법을 실천합니다." },
+                { name: "친환경적 에너지의 생산과 소비", description: "태양광, 풍력 등 지속가능한 에너지 생산 기술을 배우고, 효율적인 에너지 소비 방안을 모색합니다." },
+                { name: "탄소 제로 기술, 재활용 기술", description: "기후 위기 대응을 위한 이산화탄소 포집 및 활용 기술과 자원 순환을 위한 재활용 기술을 탐구합니다." }
+            ],
+            "과학과 미래": [
+                { name: "미래 먹거리, 스마트팜, 유전자 변형 식품", description: "미래 식량 위기에 대응하기 위한 스마트팜 기술과 유전자 변형 식품(GMO)의 명과 암에 대해 탐구합니다." },
+                { name: "과학 기술과 윤리", description: "발전하는 과학 기술이 야기할 수 있는 윤리적 문제들을 예측하고, 책임감 있는 연구 개발 방향을 토론합니다." },
+                { name: "미래 신소재, 정보통신기술", description: "그래핀, 나노물질 등 미래 산업을 이끌 신소재와 차세대 정보통신기술(ICT)에 대해 탐구합니다." },
+                { name: "4차 산업혁명 기술", description: "인공지능, 로봇, 사물 인터넷(IoT), AR/VR 등 4차 산업혁명의 핵심 기술 원리를 이해하고 미래 사회 변화를 예측합니다." },
+                { name: "항공우주 산업, 전기 및 수소 자동차, 자율주행차", description: "미래 교통 혁명을 이끌 항공우주 기술과 친환경 자동차, 자율주행차의 현재와 미래를 학습합니다." },
+                { name: "블록체인, NFT, 코딩, 메타버스", description: "디지털 대전환 시대를 이끄는 블록체인, NFT, 코딩, 메타버스 기술의 개념과 활용 가능성을 탐구합니다." },
+                { name: "건강과 웰빙, 예방 의학", description: "신체적, 정신적 건강을 아우르는 웰빙의 중요성을 이해하고, 질병 예방을 위한 생활 습관을 학습합니다." },
+                { name: "의약품 개발", description: "하나의 신약이 탄생하기까지의 복잡하고 긴 연구 개발 과정을 이해하고, 관련 직업을 탐색합니다." },
+                { name: "질병과 감염병 극복", description: "인류를 위협하는 다양한 질병과 감염병의 역사, 그리고 이를 극복하기 위한 과학적 노력을 탐구합니다." },
+                { name: "세균과 바이러스", description: "우리 주변에 항상 존재하는 세균과 바이러스의 특성을 이해하고, 유익한 활용과 유해한 감염 예방법을 배웁니다." },
+                { name: "동물 의학, 동물보호", description: "반려동물 및 야생동물의 질병을 치료하는 동물 의학과 동물의 권리를 존중하는 동물보호에 대해 학습합니다." },
+                { name: "생명 윤리 문제", description: "인공수정, 유전자 편집, 안락사 등 생명과 관련된 다양한 윤리적 딜레마에 대해 심층적으로 토론합니다." },
+                { name: "미래의 유망 직업 탐색", description: "기술 발전과 사회 변화에 따라 새롭게 등장할 미래의 유망 직업들을 예측하고 자신의 진로와 연결해 봅니다." }
+            ],
+            "문화와 예술": [
+                { name: "다문화 사회 문화 다양성, 문화유산 존중, 문화 간 학습", description: "다양한 문화를 존중하고, 상호 학습을 통해 편견 없는 다문화 사회를 만들어갑니다." },
+                { name: "미술, 음악, 체육 분야에서의 문화 간 차이", description: "각 문화권의 독특한 예술과 체육 활동을 비교 체험하며, 문화의 다양성과 보편성을 이해합니다." },
+                { name: "운동을 통한 건강 유지", description: "규칙적인 운동이 신체와 정신 건강에 미치는 긍정적 영향을 과학적으로 이해하고 실천합니다." },
+                { name: "미술사조, 음악사조", description: "고전주의부터 현대미술까지, 바로크부터 현대음악까지 시대별 예술의 흐름과 특징을 탐구합니다." },
+                { name: "스포츠 외교", description: "올림픽, 월드컵 등 국제 스포츠 행사가 국가 간 관계에 미치는 영향을 분석하며 스포츠 외교의 역할을 이해합니다." }
+            ]
+        };
+        
+        const regionalProgramDescriptions = [
+            { name: "창업캠프", description: "" }, { name: "AI융합캠프", description: "" }, { name: "지속가능한 장터", description: "" }, { name: "지역사회 플로깅", description: "" }
+        ];
+        
+        const scienceProgramDescriptions = [
+            { name: "과학 Open Labs", description: "" }, { name: "(특강) 과학기술 석학과의 만남", description: "" }, { name: "교내 메이커 체험축제", description: "" }, { name: "융합과학 메이커 축제", description: "" }, { name: "지역사회 공학나눔 캠프", description: "" }, { name: "천문교실 (천체망원경 실습 / 천체관측 / 천문소프트웨어)", description: "" }, { name: "(실험 및 체험) 학교 밖 교실 탐구활동", description: "" }, { name: "학급별 텃밭 가꾸기", description: "" }
+        ];
+        
+        const studentCouncilDescriptions = [
+            { name: "굿네이버스 봉사활동", description: "" }, { name: "기억의 날", description: "" }, { name: "학생 논단", description: "" }, { name: "리더십 캠프", description: "" },
+            { name: "대의원회의 및 학교장 간담회", description: "" }, { name: "학생 자치법정", description: "" }, { name: "수능 출정식", description: "" }
+        ];
+
+        const safetyEducationDescriptions = [
+            { name: "미세 먼지 계기 교육", description: "" }, { name: "소방 대피 훈련", description: "" }, { name: "화재 예방 교육", description: "" }
+        ];
+
+        const characterArtsDescriptions = [
+            { name: "학교 폭력 예방 캠페인 활동", description: "" }, { name: "1인 1악기", description: "" }, { name: "감염병 예방 교육", description: "" }, { name: "다문화 이해 교육", description: "" },
+            { name: "미술 작품 전시회", description: "" }, { name: "생명 존중 교육", description: "" }, { name: "성매매·성폭력 예방 교육", description: "" },
+            { name: "약물 오남용 및 마약예방 교육", description: "" }, { name: "장애 이해 교육", description: "" },
+            { name: "교권 존중 교육", description: "" }, { name: "학생 인권 교육", description: "" }, { name: "흡연 예방 교육", description: "" }
+        ];
+
+        const otherProgramDescriptions = [
+            { name: "고전-인문 아카데미", description: "" }, { name: "기후 위기포럼", description: "" }, { name: "기후행동 캠페인", description: "" }, { name: "동아리 활동 발표회", description: "" }, { name: "일본 치벤학원 국제교류", description: "" }, { name: "UN(EU) goes to School 특강", description: "" }
+        ];
+
+        // --- DOM Elements ---
+        const tabRoadmap = document.getElementById('tab-roadmap');
+        const tabCurriculum = document.getElementById('tab-curriculum');
+        const sectionRoadmap = document.getElementById('section-roadmap');
+        const sectionCurriculum = document.getElementById('section-curriculum');
+        const trackSelector = document.getElementById('track-selector');
+        const contentDisplay = document.getElementById('content-display');
+        const gradeSelector = document.getElementById('grade-selector');
+        const subjectDisplay = document.getElementById('subject-display');
+        const clubDisplay = document.getElementById('club-display');
+        const futureTalentDisplay = document.getElementById('future-talent-display');
+        const unescoTopicsDisplay = document.getElementById('unesco-topics-display');
+        const regionalProgramsDisplay = document.getElementById('regional-programs-display');
+        const scienceProgramsDisplay = document.getElementById('science-programs-display');
+        const studentCouncilDisplay = document.getElementById('student-council-display');
+        const safetyEducationDisplay = document.getElementById('safety-education-display');
+        const characterArtsDisplay = document.getElementById('character-arts-display');
+        const otherProgramsDisplay = document.getElementById('other-programs-display');
+        const clubDescriptionPanel = document.getElementById('club-description-panel');
+
+
+        // --- Functions ---
+
+        /**
+         * Updates the roadmap display based on the selected track.
+         */
+        function updateRoadmapDisplay(selectedTrack) {
+            const trackData = roadmapData.find(d => d['계열'] === selectedTrack);
+            if (!trackData) {
+                contentDisplay.innerHTML = `<p class="p-6 text-center text-slate-500">데이터를 찾을 수 없습니다.</p>`;
+                return;
+            }
+
+            contentDisplay.innerHTML = ''; // Clear previous content
+            
+            const layout = [
+                ["이수 교과 (1학년)", "이수 교과 (2학년)", "이수 교과 (3학년)"],
+                ["정규 동아리", "미래인재 프로그램", "유네스코학교 탐구 주제"],
+                ["과학 특색 프로그램", "지역 연계 창의 융합교육"],
+                ["기타 학교 행사"],
+                ["인성·예술 교육", "학생회", "안전 교육"]
+            ];
+            const colors = [
+                { bg: 'bg-amber-100', text: 'text-amber-800', tag: 'bg-amber-200 text-amber-900' },
+                { bg: 'bg-yellow-100', text: 'text-yellow-800', tag: 'bg-yellow-200 text-yellow-900' },
+                { bg: 'bg-lime-100', text: 'text-lime-800', tag: 'bg-lime-200 text-lime-900' },
+                { bg: 'bg-cyan-100', text: 'text-cyan-800', tag: 'bg-cyan-200 text-cyan-900' },
+                { bg: 'bg-green-100', text: 'text-green-800', tag: 'bg-green-200 text-green-900' },
+                { bg: 'bg-fuchsia-100', text: 'text-fuchsia-800', tag: 'bg-fuchsia-200 text-fuchsia-900' },
+                { bg: 'bg-pink-100', text: 'text-pink-800', tag: 'bg-pink-200 text-pink-900' },
+                { bg: 'bg-yellow-100', text: 'text-yellow-800', tag: 'bg-yellow-200 text-yellow-900' },
+                { bg: 'bg-orange-100', text: 'text-orange-800', tag: 'bg-orange-200 text-orange-900' },
+            ];
+            let colorIndex = 0;
+
+            const createCard = (header, value) => {
+                if (!value || value.trim() === '') return null;
+                
+                const card = document.createElement('div');
+                card.className = 'content-card rounded-xl shadow-lg overflow-hidden transition-all duration-300';
+                
+                const color = colors[colorIndex % colors.length];
+
+                const headerContainer = document.createElement('div');
+                headerContainer.className = `p-4 ${color.bg} flex justify-between items-center cursor-pointer collapsible-trigger`;
+                
+                const headerTitle = document.createElement('h3');
+                headerTitle.className = `font-bold text-lg ${color.text}`;
+                headerTitle.textContent = header;
+                
+                const chevron = document.createElement('span');
+                chevron.className = 'chevron';
+                chevron.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
+                
+                headerContainer.appendChild(headerTitle);
+                headerContainer.appendChild(chevron);
+
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'collapsible-content';
+                
+                let contentHTML = '';
+                const tagHeaders = ["정규 동아리", "미래인재 프로그램", "유네스코학교 탐구 주제", "과학 특색 프로그램", "지역 연계 창의 융합교육", "기타 학교 행사", "인성·예술 교육", "학생회", "안전 교육"];
+
+                if (tagHeaders.includes(header)) {
+                     const items = value.replace(/, /g, '\n').split('\n');
+                     contentHTML = '<div class="flex flex-wrap gap-2 justify-start">';
+                     items.forEach(item => {
+                         if (item.trim() !== '') {
+                             contentHTML += `<span class="${color.tag} text-sm font-medium px-3 py-1 rounded-full">${item.trim()}</span>`;
+                         }
+                     });
+                     contentHTML += '</div>';
+                } else if ((header === "이수 교과 (1학년)" || header === "이수 교과 (2학년)" || header === "이수 교과 (3학년)") && value.includes("///")) {
+                    const [sem1, sem2] = value.split('///');
+                    const [common, sem1Electives] = sem1.split('---');
+                    
+                    const commonSubjects = common.trim().split('\n');
+                    let sem1Array = sem1Electives ? sem1Electives.trim().split('\n') : [];
+                    let sem2Array = sem2.trim().split('\n');
+                    const highlightedSubjects = ['문학', '확률과 통계', '심화 영어', '언어생활 탐구', '미디어 영어'];
+                    const highlightedSubjects2nd = ['독서와 작문', '영어Ⅰ', '대수', '화법과 언어', '영어Ⅱ', '미적분Ⅰ'];
+
+                    
+                    contentHTML += `<div class="p-4 bg-gray-50 rounded-lg">`;
+                    if(sem1Array.length > 0 || header === "이수 교과 (1학년)") {
+                        contentHTML += `<h5 class="font-semibold ${color.text} mb-2">1학기${header !== "이수 교과 (1학년)" ? ' 선택' : ''}</h5>`;
+                        contentHTML += `<div class="flex flex-wrap gap-2">`;
+                        
+                        if (header === "이수 교과 (3학년)") {
+                            const highlighted1 = sem1Array.filter(s => highlightedSubjects.includes(s.trim()));
+                            const rest1 = sem1Array.filter(s => !highlightedSubjects.includes(s.trim()));
+                            sem1Array = [...highlighted1, ...rest1];
+                        } else if (header === "이수 교과 (2학년)") {
+                            sem1Array = [...highlightedSubjects2nd.slice(0,3), ...sem1Array];
+                        }
+
+                        const currentSemArray1 = header === "이수 교과 (1학년)" ? commonSubjects : sem1Array;
+                        currentSemArray1.forEach(elective => {
+                            const isHighlighted = (header === "이수 교과 (3학년)" && highlightedSubjects.includes(elective.trim())) || (header === "이수 교과 (2학년)" && highlightedSubjects2nd.includes(elective.trim()));
+                            let tagClass = `bg-white ${color.text}`;
+                            if (isHighlighted) {
+                                if (header === "이수 교과 (3학년)") tagClass = `${colors[4].tag}`; // Green
+                                else if (header === "이수 교과 (2학년)") tagClass = `${colors[1].tag}`; // Yellow
+                            }
+                            contentHTML += `<span class="${tagClass} text-sm font-medium px-3 py-1 rounded-full shadow-sm">${elective.trim()}</span>`;
+                        });
+                        contentHTML += `</div>`;
+                        contentHTML += `<hr class="border-gray-200 my-3">`;
+                    } 
+
+                    const semester2Title = (header === "이수 교과 (1학년)") ? '2학기' : '2학기 선택';
+                    contentHTML += `<h5 class="font-semibold ${color.text} mb-2">${semester2Title}</h5>`;
+                    contentHTML += `<div class="flex flex-wrap gap-2">`;
+                    
+                    if (header === "이수 교과 (3학년)") {
+                        const highlighted2 = sem2Array.filter(s => highlightedSubjects.includes(s.trim()));
+                        const rest2 = sem2Array.filter(s => !highlightedSubjects.includes(s.trim()));
+                        sem2Array = [...highlighted2, ...rest2];
+                    } else if (header === "이수 교과 (2학년)") {
+                        sem2Array = [...highlightedSubjects2nd.slice(3,6), ...sem2Array];
+                    }
+                    
+                    const currentSemArray2 = header === "이수 교과 (1학년)" ? sem2.trim().split('\n') : sem2Array;
+                    currentSemArray2.forEach(elective => {
+                        const isHighlighted = (header === "이수 교과 (3학년)" && highlightedSubjects.includes(elective.trim())) || (header === "이수 교과 (2학년)" && highlightedSubjects2nd.includes(elective.trim()));
+                        let tagClass = `bg-white ${color.text}`;
+                        if (isHighlighted) {
+                            if (header === "이수 교과 (3학년)") tagClass = `${colors[4].tag}`; // Green
+                            else if (header === "이수 교과 (2학년)") tagClass = `${colors[1].tag}`; // Yellow
+                        }
+                        contentHTML += `<span class="${tagClass} text-sm font-medium px-3 py-1 rounded-full shadow-sm">${elective.trim()}</span>`;
+                    });
+                    contentHTML += `</div>`;
+                    contentHTML += `</div>`;
+                } else {
+                    contentHTML = value.replace(/\n/g, '<br>');
+                }
+                
+                contentWrapper.innerHTML = contentHTML;
+                card.appendChild(headerContainer);
+                card.appendChild(contentWrapper);
+
+                headerContainer.addEventListener('click', () => {
+                    contentWrapper.classList.toggle('expanded');
+                    chevron.classList.toggle('rotated');
+                });
+
+                colorIndex++;
+                return card;
+            };
+
+            const createArrow = () => {
+                const arrowWrapper = document.createElement('div');
+                arrowWrapper.className = 'text-emerald-500 hidden lg:flex items-center justify-center';
+                arrowWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>`;
+                return arrowWrapper;
+            };
+
+            layout.forEach(rowHeaders => {
+                // Special handling for the grade progression row
+                if (rowHeaders[0] === "이수 교과 (1학년)") {
+                    const rowElement = document.createElement('div');
+                    rowElement.className = 'grid lg:grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-8';
+                    
+                    const card1 = createCard(rowHeaders[0], trackData[rowHeaders[0]]);
+                    const card2 = createCard(rowHeaders[1], trackData[rowHeaders[1]]);
+                    const card3 = createCard(rowHeaders[2], trackData[rowHeaders[2]]);
+
+                    if(card1) rowElement.appendChild(card1);
+                    if(card1 && card2) rowElement.appendChild(createArrow());
+                    if(card2) rowElement.appendChild(card2);
+                    if(card2 && card3) rowElement.appendChild(createArrow());
+                    if(card3) rowElement.appendChild(card3);
+
+                    contentDisplay.appendChild(rowElement);
+
+                } else { // Default grid layout for other rows
+                    const rowElement = document.createElement('div');
+                    const numCols = rowHeaders.length;
+                    let gridClass = 'grid-cols-1';
+                    if (numCols === 2) gridClass += ' lg:grid-cols-2';
+                    else if (numCols === 3) gridClass += ' lg:grid-cols-3';
+                    rowElement.className = `grid ${gridClass} gap-8`;
+
+                    let hasContentInRow = false;
+                    rowHeaders.forEach(header => {
+                        const card = createCard(header, trackData[header]);
+                        if (card) {
+                            rowElement.appendChild(card);
+                            hasContentInRow = true;
+                        }
+                    });
+                    if (hasContentInRow) contentDisplay.appendChild(rowElement);
+                }
+            });
+        }
+
+        /**
+         * Updates the subject list display based on the selected grade.
+         */
+        function updateSubjectDisplay(selectedGrade) {
+            const categories = gradeSubjects[selectedGrade] || {};
+            subjectDisplay.innerHTML = ''; // Clear previous content
+
+            const colorMap = {
+                "국어": { bg: "bg-rose-100", text: "text-rose-800", tag: "bg-rose-200 text-rose-900" },
+                "수학": { bg: "bg-sky-100", text: "text-sky-800", tag: "bg-sky-200 text-sky-900" },
+                "영어": { bg: "bg-amber-100", text: "text-amber-800", tag: "bg-amber-200 text-amber-900" },
+                "사회": { bg: "bg-lime-100", text: "text-lime-800", tag: "bg-lime-200 text-lime-900" },
+                "과학": { bg: "bg-emerald-100", text: "text-emerald-800", tag: "bg-emerald-200 text-emerald-900" },
+                "예체능": { bg: "bg-orange-100", text: "text-orange-800", tag: "bg-orange-200 text-orange-900" },
+                "교양/기타": { bg: "bg-teal-100", text: "text-teal-800", tag: "bg-teal-200 text-teal-900" }
+            };
+
+            if (Object.keys(categories).length === 0) {
+                subjectDisplay.innerHTML = `<p class="text-gray-500">선택된 학년의 과목 정보가 없습니다.</p>`;
+                return;
+            }
+
+            for (const [category, subjects] of Object.entries(categories)) {
+                const colors = colorMap[category] || { bg: "bg-gray-100", text: "text-gray-800", tag: "bg-gray-200 text-gray-900" };
+                const categoryWrapper = document.createElement('div');
+                
+                if (selectedGrade === '2' && category === '과학') {
+                    categoryWrapper.className = `content-card rounded-lg shadow-sm p-4 ${colors.bg}`;
+                    
+                    const categoryTitle = document.createElement('h4');
+                    categoryTitle.className = `font-bold text-lg mb-4 text-center ${colors.text}`;
+                    categoryTitle.textContent = category;
+                    categoryWrapper.appendChild(categoryTitle);
+
+                    const itemsWrapper = document.createElement('div');
+                    itemsWrapper.className = 'space-y-3';
+
+                    subjects.forEach(item => {
+                        const row = document.createElement('div');
+                        
+                        if (Array.isArray(item) && item.length === 2) {
+                            row.className = `flex items-center w-full ${colors.tag} rounded-full px-4 py-2`;
+                            row.innerHTML = `
+                                <span class="font-medium">${item[0]}</span>
+                                <div class="flex-grow border-t border-dashed border-emerald-400/50 mx-4"></div>
+                                <span class="font-medium">${item[1]}</span>
+                            `;
+                        } else { // Single item
+                            row.className = `flex items-center w-1/2 ${colors.tag} rounded-full px-4 py-2 justify-start`;
+                            row.innerHTML = `<span class="font-medium">${item}</span>`;
+                        }
+                        itemsWrapper.appendChild(row);
+                    });
+
+                    categoryWrapper.appendChild(itemsWrapper);
+                } else {
+                    categoryWrapper.className = `content-card rounded-lg shadow-sm p-4 ${colors.bg}`;
+                    const categoryTitle = document.createElement('h4');
+                    categoryTitle.className = `font-bold text-lg mb-3 text-center ${colors.text}`;
+                    categoryTitle.textContent = category;
+                    
+                    const tagsWrapper = document.createElement('div');
+                    tagsWrapper.className = 'flex flex-wrap gap-2 justify-center';
+
+                    subjects.forEach(subject => {
+                        const tag = document.createElement('span');
+                        tag.className = `${colors.tag} text-sm font-medium px-3 py-1 rounded-full`;
+                        tag.textContent = subject;
+                        tagsWrapper.appendChild(tag);
+                    });
+                    categoryWrapper.appendChild(categoryTitle);
+                    categoryWrapper.appendChild(tagsWrapper);
+                }
+                subjectDisplay.appendChild(categoryWrapper);
+            }
+        }
+        
+        /**
+         * Generic function to populate a display with tags and click listeners.
+         */
+        function populateDisplayWithItems(displayElement, dataArray, tagColorPalettes, isClickable) {
+            displayElement.innerHTML = '';
+            let colorIndex = 0;
+            
+            const rows = [];
+            if (displayElement.id === 'student-council-display') {
+                 rows.push(dataArray.slice(0, 4));
+                 rows.push(dataArray.slice(4));
+            } else if (displayElement.id === 'character-arts-display') {
+                 rows.push(dataArray.slice(0,4));
+                 rows.push(dataArray.slice(4,7));
+                 rows.push(dataArray.slice(7,9));
+                 rows.push(dataArray.slice(9));
+            }
+
+            if (rows.length > 0) {
+                rows.forEach(rowData => {
+                    const rowWrapper = document.createElement('div');
+                    rowWrapper.className = 'flex flex-wrap gap-3';
+                    rowData.forEach(item => {
+                        const tag = createTag(item, tagColorPalettes[colorIndex % tagColorPalettes.length], isClickable);
+                        rowWrapper.appendChild(tag);
+                        colorIndex++;
+                    });
+                    displayElement.appendChild(rowWrapper);
+                });
+            } else {
+                 dataArray.forEach(item => {
+                    const tag = createTag(item, tagColorPalettes[colorIndex % tagColorPalettes.length], isClickable);
+                    displayElement.appendChild(tag);
+                    colorIndex++;
+                });
+            }
+        }
+
+        function createTag(item, tagClasses, isClickable) {
+            const tag = document.createElement('span');
+            let finalTagClasses = `${tagClasses} text-sm font-medium px-3 py-1 rounded-full`;
+            
+            if (isClickable) {
+                finalTagClasses += ' cursor-pointer hover:ring-2 hover:ring-amber-400 transition-all';
+            }
+            
+            tag.className = finalTagClasses;
+            
+            if (item.name.startsWith('(자율)')) {
+                tag.innerHTML = item.name.replace('(자율)', '<span class="font-bold text-amber-700">(자율)</span>');
+            } else {
+                tag.textContent = item.name;
+            }
+
+            if (isClickable && item.description) {
+                tag.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    clubDescriptionPanel.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-lg text-amber-700">${item.name.replace('(자율) ', '')}</h4>
+                            <button id="close-desc-btn" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+                        </div>
+                        <p class="text-gray-600">${item.description}</p>
+                    `;
+                    clubDescriptionPanel.classList.remove('hidden');
+                });
+            }
+            return tag;
+        }
+        
+        /**
+         * Populates the future talent display with categorized programs.
+         */
+        function populateFutureTalentDisplay() {
+            futureTalentDisplay.innerHTML = '';
+            futureTalentDisplay.className = 'p-4 bg-gray-50 rounded-lg grid grid-cols-1 lg:grid-cols-3 gap-6';
+
+            const categoryColors = {
+                "인문·사회": { bg: "bg-sky-100", text: "text-sky-800", tag: "bg-sky-200 text-sky-900" },
+                "자연·공학": { bg: "bg-emerald-100", text: "text-emerald-800", tag: "bg-emerald-200 text-emerald-900" },
+                "예체능 및 기타": { bg: "bg-fuchsia-100", text: "text-fuchsia-800", tag: "bg-fuchsia-200 text-fuchsia-900" }
+            };
+
+            for (const [category, programs] of Object.entries(categorizedFutureTalentPrograms)) {
+                const colors = categoryColors[category];
+                const categoryWrapper = document.createElement('div');
+                categoryWrapper.className = `content-card rounded-lg shadow-sm p-4 ${colors.bg}`;
+
+                const categoryTitleContainer = document.createElement('div');
+                categoryTitleContainer.className = 'collapsible-trigger flex justify-between items-center cursor-pointer';
+                
+                const categoryTitle = document.createElement('h4');
+                categoryTitle.className = `font-bold text-lg ${colors.text}`;
+                categoryTitle.textContent = category;
+
+                const chevron = document.createElement('span');
+                chevron.className = 'chevron transition-transform duration-500';
+                chevron.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
+                
+                categoryTitleContainer.appendChild(categoryTitle);
+                categoryTitleContainer.appendChild(chevron);
+                
+                const tagsWrapper = document.createElement('div');
+                tagsWrapper.className = 'collapsible-content flex flex-wrap gap-2 justify-start';
+                
+                programs.forEach(program => {
+                    const tag = document.createElement('span');
+                    tag.className = `${colors.tag} text-sm font-medium px-3 py-1 rounded-full`;
+                    tag.textContent = program.name;
+                    tagsWrapper.appendChild(tag);
+                });
+
+                categoryWrapper.appendChild(categoryTitleContainer);
+                categoryWrapper.appendChild(tagsWrapper);
+                futureTalentDisplay.appendChild(categoryWrapper);
+
+                categoryTitleContainer.addEventListener('click', () => {
+                    const content = categoryTitleContainer.nextElementSibling;
+                    content.classList.toggle('expanded');
+                    chevron.classList.toggle('rotated');
+                });
+            }
+        }
+
+        /**
+         * Populates the UNESCO topics display with categorized programs.
+         */
+        function populateUnescoDisplay() {
+            unescoTopicsDisplay.innerHTML = '';
+            unescoTopicsDisplay.className = 'p-4 bg-gray-50 rounded-lg grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6';
+
+            const categoryColors = {
+                "세계 시민": { bg: "bg-rose-100", text: "text-rose-800", tag: "bg-rose-200 text-rose-900" },
+                "지속가능발전": { bg: "bg-lime-100", text: "text-lime-800", tag: "bg-lime-200 text-lime-900" },
+                "과학과 미래": { bg: "bg-cyan-100", text: "text-cyan-800", tag: "bg-cyan-200 text-cyan-900" },
+                "문화와 예술": { bg: "bg-amber-100", text: "text-amber-800", tag: "bg-amber-200 text-amber-900" }
+            };
+
+            for (const [category, programs] of Object.entries(categorizedUnescoTopics)) {
+                const colors = categoryColors[category];
+                const categoryWrapper = document.createElement('div');
+                categoryWrapper.className = `content-card rounded-lg shadow-sm p-4 ${colors.bg} h-full`;
+
+                const categoryTitle = document.createElement('h4');
+                categoryTitle.className = `font-bold text-lg mb-3 text-center ${colors.text}`;
+                categoryTitle.textContent = category;
+                categoryWrapper.appendChild(categoryTitle);
+
+                const tagsWrapper = document.createElement('div');
+                tagsWrapper.className = 'flex flex-wrap gap-2 justify-start';
+                
+                programs.forEach(program => {
+                    const tag = document.createElement('span');
+                    tag.className = `${colors.tag} text-sm font-medium px-3 py-1 rounded-full`;
+                    tag.textContent = program.name;
+                    tagsWrapper.appendChild(tag);
+                });
+                categoryWrapper.appendChild(tagsWrapper);
+                unescoTopicsDisplay.appendChild(categoryWrapper);
+            }
+        }
+
+        /**
+         * Switches between the main sections.
+         */
+        function switchTab(activeTabId) {
+            const tabs = [tabCurriculum, tabRoadmap];
+            const sections = [sectionCurriculum, sectionRoadmap];
+            const activeSection = (activeTabId === 'curriculum') ? sectionCurriculum : sectionRoadmap;
+            const activeTab = (activeTabId === 'curriculum') ? tabCurriculum : tabRoadmap;
+
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            tabs.forEach(tab => {
+                tab.classList.remove('tab-active');
+                tab.classList.add('tab-inactive');
+            });
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('tab-inactive');
+
+            activeSection.classList.remove('hidden');
+            activeSection.classList.add('fade-in');
+
+            activeSection.addEventListener('animationend', () => {
+                activeSection.classList.remove('fade-in');
+            }, { once: true });
+        }
+
+
+        // --- Event Listeners & Initialization ---
+        window.onload = function() {
+            // Tab switching
+            tabCurriculum.addEventListener('click', () => switchTab('curriculum'));
+            tabRoadmap.addEventListener('click', () => switchTab('roadmap'));
+
+            // Roadmap section setup
+            roadmapData.forEach(track => {
+                const option = document.createElement('option');
+                option.value = track['계열'];
+                option.textContent = track['계열'];
+                trackSelector.appendChild(option);
+            });
+            trackSelector.addEventListener('change', (e) => {
+                const content = document.getElementById('content-display');
+                content.classList.remove('fade-in');
+                void content.offsetWidth;
+                content.classList.add('fade-in');
+                updateRoadmapDisplay(e.target.value)
+            });
+
+            // Curriculum section setup
+            gradeSelector.addEventListener('change', (e) => {
+                const content = document.getElementById('subject-display');
+                content.classList.remove('fade-in');
+                void content.offsetWidth;
+                content.classList.add('fade-in');
+                updateSubjectDisplay(e.target.value);
+            });
+            
+            const clubPalette = ['bg-amber-200 text-amber-900', 'bg-amber-100 text-amber-800'];
+            const regionalPalette = ['bg-orange-200 text-orange-900', 'bg-orange-100 text-orange-800'];
+            const sciencePalette = ['bg-yellow-200 text-yellow-900', 'bg-yellow-100 text-yellow-800'];
+            const studentCouncilPalette = ['bg-blue-200 text-blue-900', 'bg-blue-100 text-blue-800'];
+            const safetyEducationPalette = ['bg-rose-200 text-rose-900', 'bg-rose-100 text-rose-800'];
+            const characterArtsPalette = ['bg-cyan-200 text-cyan-900', 'bg-cyan-100 text-cyan-800'];
+            const otherProgramsPalette = ['bg-gray-200 text-gray-900', 'bg-gray-100 text-gray-800'];
+
+            populateDisplayWithItems(clubDisplay, clubDescriptions, clubPalette, true);
+            populateFutureTalentDisplay();
+            populateUnescoDisplay();
+            populateDisplayWithItems(regionalProgramsDisplay, regionalProgramDescriptions, regionalPalette, false);
+            populateDisplayWithItems(scienceProgramsDisplay, scienceProgramDescriptions, sciencePalette, false);
+            populateDisplayWithItems(studentCouncilDisplay, studentCouncilDescriptions, studentCouncilPalette, false);
+            populateDisplayWithItems(safetyEducationDisplay, safetyEducationDescriptions, safetyEducationPalette, false);
+            populateDisplayWithItems(characterArtsDisplay, characterArtsDescriptions, characterArtsPalette, false);
+            populateDisplayWithItems(otherProgramsDisplay, otherProgramDescriptions, otherProgramsPalette, false);
+
+            // Add listener for the club description panel close button
+            clubDescriptionPanel.addEventListener('click', (e) => {
+                if (e.target.id === 'close-desc-btn') {
+                    clubDescriptionPanel.classList.add('hidden');
+                }
+            });
+
+            // Initial state
+            switchTab('curriculum'); 
+            if (roadmapData.length > 0) {
+                updateRoadmapDisplay(roadmapData[0]['계열']);
+            }
+            updateSubjectDisplay(gradeSelector.value);
+
+            // --- Initialize Interactive Graphic ---
+            initializeInteractiveGraphic();
+        };
+
+        function initializeInteractiveGraphic() {
+            const graphicContainer = document.getElementById('interactive-graphic-container');
+            const connectionsSvg = graphicContainer.querySelector('#connections');
+            const infoPanel = graphicContainer.querySelector('#info-panel');
+            const infoTitle = graphicContainer.querySelector('#info-title');
+            const infoDescription = graphicContainer.querySelector('#info-description');
+            const canvas = graphicContainer.querySelector('#particle-canvas');
+            const ctx = canvas.getContext('2d');
+
+            let particles = [];
+            let challengeSparks = [];
+
+            function resizeCanvas() {
+                canvas.width = graphicContainer.clientWidth;
+                canvas.height = graphicContainer.clientHeight;
+            }
+            resizeCanvas();
+
+            const nodesData = [
+                { id: 'future-talent', title: '미래인재<br>프로그램', description: '교과 심화 지식을 바탕으로 연구를 수행하고, 과학 특색 프로그램이나 동아리 활동의 결과물을 발전시키는 등 전문성을 극대화합니다.', connections: ['clubs', 'unesco', 'science-special'] },
+                { id: 'clubs', title: '동아리 활동', description: '수업에서 배운 이론을 실제 탐구로 연결하고, 관심 분야가 같은 친구들과 협력하며 리더십과 사회성을 기릅니다.', connections: ['future-talent', 'convergence-edu', 'science-special', 'character-arts', 'etc-programs'] },
+                { id: 'unesco', title: '유네스코학교', description: '인문사회 교과목과 연계하여 글로벌 이슈를 탐구하고, 인성/예술 교육을 통해 배운 공감 능력을 세계시민의식으로 확장합니다.', connections: ['clubs', 'future-talent', 'character-arts', 'convergence-edu'] },
+                { id: 'convergence-edu', title: '지역 연계<br>창의융합', description: '교과 지식을 학교 밖 현실 세계의 문제 해결에 적용하며, 동아리나 과학 프로그램의 아이디어를 실체화합니다.', connections: ['clubs', 'unesco'] },
+                { id: 'science-special', title: '과학 특색<br>프로그램', description: '과학 교과목의 이론적 기반 위에 심화 실험과 탐구를 진행하며, 그 결과는 미래인재 프로그램이나 동아리 활동의 주제가 됩니다.', connections: ['clubs', 'future-talent'] },
+                { id: 'student-council', title: '학생회', description: '학교 공동체의 문제를 해결하며 민주시민 역량을 기르고, 안전 교육이나 유네스코 활동의 아이디어를 학교 전체로 확산시킵니다.', connections: ['convergence-edu', 'character-arts', 'etc-programs'] },
+                { id: 'safety-edu', title: '안전 교육', description: '과학적 원리를 바탕으로 재난 상황을 이해하고, 학생회 활동을 통해 안전 캠페인을 주도하며 생명 존중을 실천합니다.', connections: ['student-council', 'character-arts'] },
+                { id: 'character-arts', title: '인성/예술 교육', description: '예술 활동을 통해 표현력과 공감능력을 기르며, 이는 유네스코 활동의 다문화 이해나 동료와의 협업에 긍정적 영향을 줍니다.', connections: ['clubs', 'unesco'] },
+                { id: 'etc-programs', title: '기타 프로그램', description: '진로 특강, 봉사활동 등 다양한 경험을 통해 시야를 넓히고, 이는 다른 모든 활동의 동기를 부여하거나 새로운 방향을 제시합니다.', connections: ['clubs', 'unesco'] }
+            ];
+
+            const colorPalette = [
+                { bg: 'bg-rose-100', border: 'border-rose-300' }, { bg: 'bg-amber-100', border: 'border-amber-300' },
+                { bg: 'bg-lime-100', border: 'border-lime-300' }, { bg: 'bg-emerald-100', border: 'border-emerald-300' },
+                { bg: 'bg-teal-100', border: 'border-teal-300' }, { bg: 'bg-sky-100', border: 'border-sky-300' },
+                { bg: 'bg-indigo-100', border: 'border-indigo-300' }, { bg: 'bg-fuchsia-100', border: 'border-fuchsia-300' },
+                { bg: 'bg-slate-200', border: 'border-slate-400' }
+            ];
+
+            nodesData.forEach((data, index) => {
+                const nodeEl = document.createElement('div');
+                nodeEl.id = data.id;
+                nodeEl.className = 'node orbit-node';
+                nodeEl.innerHTML = data.title;
+                nodeEl.dataset.index = index;
+                const color = colorPalette[index % colorPalette.length];
+                nodeEl.classList.add(color.bg, color.border);
+                graphicContainer.appendChild(nodeEl);
+            });
+            
+            const centerNode = graphicContainer.querySelector('#center-node');
+            const orbitNodes = graphicContainer.querySelectorAll('.orbit-node');
+            const allNodes = graphicContainer.querySelectorAll('.node');
+
+            let positions = {};
+
+            function positionNodesAndDrawLines() {
+                resizeCanvas();
+                const containerRect = graphicContainer.getBoundingClientRect();
+                const centerX = containerRect.width / 2;
+                const centerY = containerRect.height / 2;
+                const radius = Math.min(containerRect.width, containerRect.height) / 2 * 0.70;
+
+                connectionsSvg.innerHTML = ''; 
+                positions = {};
+
+                centerNode.style.left = `${centerX - centerNode.offsetWidth / 2}px`;
+                centerNode.style.top = `${centerY - centerNode.offsetHeight / 2}px`;
+                positions['center-node'] = { x: centerX, y: centerY };
+
+                orbitNodes.forEach((node, i) => {
+                    const angle = (i / orbitNodes.length) * 2 * Math.PI - (Math.PI / 2);
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    node.style.left = `${x - node.offsetWidth / 2}px`;
+                    node.style.top = `${y - node.offsetHeight / 2}px`;
+                    positions[node.id] = { x, y };
+                });
+
+                const orbitNodeIds = nodesData.map(d => d.id);
+                orbitNodeIds.forEach(id => {
+                    const lineToCenter = createSvgLine(positions[id].x, positions[id].y, positions['center-node'].x, positions['center-node'].y, `line-center-node-${id}`);
+                    connectionsSvg.appendChild(lineToCenter);
+                });
+
+                for (let i = 0; i < orbitNodeIds.length; i++) {
+                    for (let j = i + 1; j < orbitNodeIds.length; j++) {
+                        const id1 = orbitNodeIds[i];
+                        const id2 = orbitNodeIds[j];
+                        const interLine = createSvgLine(positions[id1].x, positions[id1].y, positions[id2].x, positions[id2].y, `line-${id1}-${id2}`);
+                        connectionsSvg.appendChild(interLine);
+                    }
+                }
+            }
+
+            function createSvgLine(x1, y1, x2, y2, className) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+                line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+                line.setAttribute('class', `connection-line ${className}`);
+                return line;
+            }
+
+            function createSelfDirectedParticles() {
+                 if (particles.length > 150) return;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                for (let i = 0; i < 2; i++) {
+                    particles.push({
+                        x: centerX, y: centerY,
+                        vx: (Math.random() - 0.5) * 0.7, vy: (Math.random() - 0.5) * 0.7,
+                        size: Math.random() * 2 + 1,
+                        life: 150 + Math.random() * 100,
+                        initialLife: 250,
+                        color: 'rgba(251, 191, 36, 0.5)' // amber-400
+                    });
+                }
+            }
+
+            function createChallengeSparks(lineElement) {
+                const x1 = parseFloat(lineElement.getAttribute('x1'));
+                const y1 = parseFloat(lineElement.getAttribute('y1'));
+                const x2 = parseFloat(lineElement.getAttribute('x2'));
+                const y2 = parseFloat(lineElement.getAttribute('y2'));
+                const numSparks = 20;
+
+                for(let i=0; i < numSparks; i++) {
+                    const t = Math.random();
+                    const x = x1 + t * (x2 - x1);
+                    const y = y1 + t * (y2 - y1);
+                    challengeSparks.push({
+                        x: x, y: y,
+                        vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3,
+                        size: Math.random() * 2.5 + 1,
+                        life: 20 + Math.random() * 10,
+                        initialLife: 30,
+                        color: 'rgba(239, 68, 68, 1)' // red-500
+                    });
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                createSelfDirectedParticles();
+                particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.life--;
+                    if (p.life <= 0) particles.splice(i, 1);
+                    ctx.globalAlpha = p.life / p.initialLife;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                });
+
+                challengeSparks.forEach((s, i) => {
+                    s.x += s.vy; s.life--;
+                    if (s.life <= 0) challengeSparks.splice(i, 1);
+                    ctx.globalAlpha = s.life / s.initialLife;
+                    ctx.fillStyle = s.color;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+
+                requestAnimationFrame(animateParticles);
+            }
+
+            allNodes.forEach(node => {
+                node.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const clickedId = node.id;
+                    
+                    allNodes.forEach(n => n.classList.remove('active', 'related'));
+                    connectionsSvg.querySelectorAll('.connection-line').forEach(l => l.classList.remove('active'));
+
+                    node.classList.add('active');
+                    challengeSparks = [];
+
+                    let data;
+                    if (clickedId === 'center-node') {
+                        data = { title: '이수 교과 (학업 역량)', description: '모든 활동의 중심이 되는 교과 학습입니다. 학문적 기초를 다지고, 이는 다른 모든 활동의 지적 기반이 되어 시너지를 창출하는 핵심 동력이 됩니다.' };
+                        orbitNodes.forEach(n => {
+                           const line = connectionsSvg.querySelector(`.line-center-node-${n.id}`);
+                           if (line) {
+                               line.classList.add('active');
+                               createChallengeSparks(line);
+                           }
+                           n.classList.add('related');
+                        });
+                    } else {
+                        const nodeData = nodesData.find(d => d.id === clickedId);
+                        data = nodeData;
+                        
+                        const centerLine = connectionsSvg.querySelector(`.line-center-node-${clickedId}`);
+                        if(centerLine) {
+                            centerLine.classList.add('active');
+                            createChallengeSparks(centerLine);
+                        }
+
+                        nodeData.connections.forEach(connId => {
+                            graphicContainer.querySelector(`#${connId}`)?.classList.add('related');
+                            let line = connectionsSvg.querySelector(`.line-${clickedId}-${connId}`) || connectionsSvg.querySelector(`.line-${connId}-${clickedId}`);
+                            if(line) {
+                                line.classList.add('active');
+                                createChallengeSparks(line);
+                            }
+                        });
+                    }
+
+                    infoTitle.textContent = data.title.replace(/<br>/g, ' ');
+                    infoDescription.textContent = data.description;
+                    infoPanel.classList.add('fade-in-graphic');
+                });
+            });
+
+            document.body.addEventListener('click', () => {
+                 allNodes.forEach(n => n.classList.remove('active', 'related'));
+                 connectionsSvg.querySelectorAll('.connection-line').forEach(l => l.classList.remove('active'));
+                 infoPanel.classList.remove('fade-in-graphic');
+            });
+
+            window.addEventListener('resize', positionNodesAndDrawLines);
+            positionNodesAndDrawLines();
+            animateParticles();
+        }
+    </script>
+</body>
+</html>
